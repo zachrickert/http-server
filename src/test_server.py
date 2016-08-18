@@ -6,12 +6,11 @@ TEST_CONDITIONS = ['string',
     '1234567', 
     '12345678', 
     '123456789',
-    '-'*10000
-    ,'āĕĳœ',
+    '-'*10000,
+    u'āĕĳœ',
+    ''
+    '12345\t',
     ]
-
-TEST_CONDITIONS_FAIL = ['', 1, b'1234', '12345\t']
-
 
 @pytest.mark.parametrize('condition', TEST_CONDITIONS)
 def test_client(condition):

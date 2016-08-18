@@ -1,9 +1,12 @@
 # _*_ coding: utf-8 _*_
+"""Will recieve a message from a client and send back an echo."""
+from __future__ import unicode_literals
 import socket
 from client import PORT
 
 
 def server():
+    """Will recieve a message from a client and send back an echo."""
     buffer_length = 8
     server_socket = socket.socket(
         socket.AF_INET,
