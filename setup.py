@@ -11,5 +11,5 @@ setup(
     py_modules=['server', 'client'],
     package_dir={'': 'src'},
     install_requires=[],
-    extras_require={'test': ['pytest', 'pytest-watch', 'tox']},
+    extras_require={'test': ['pytest', 'tox']},
 )
