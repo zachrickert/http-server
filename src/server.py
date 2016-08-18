@@ -9,6 +9,7 @@ RESPONSE_CODE = {
     200: '200 OK',
     500: '500 Internal Server Error'
 }
+CRLF = '\r\n'
 
 
 def server():
@@ -41,12 +42,12 @@ def server():
 
 
 def response_ok():
-    message = '{0} {1}'.format(HTML_PROTOCOL, RESPONSE_CODE[200])
+    message = '{0} {1}{2}'.format(HTML_PROTOCOL, RESPONSE_CODE[200], CRLF)
     return message.encode('utf8')
 
 
 def response_error():
-    message = '{0} {1}'.format(HTML_PROTOCOL, RESPONSE_CODE[500])
+    message = '{0} {1}{2}'.format(HTML_PROTOCOL, RESPONSE_CODE[500], CRLF)
     return message.encode('utf8')
 
 
