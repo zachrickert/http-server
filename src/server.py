@@ -4,6 +4,12 @@ from __future__ import unicode_literals
 import socket
 from client import PORT
 
+HTML_PROTOCOL = 'HTTP/1.1'
+RESPONSE_CODE = {
+    200: '200 OK',
+    500: '500 Internal Server Error'
+}
+
 
 def server():
     """Will recieve a message from a client and send back an echo."""
@@ -29,9 +35,20 @@ def server():
             if len(part) < buffer_length:
                 message_complete = True
         print(recv_message)
-        conn.sendall(recv_message)
+        conn.sendall(response_ok())
         conn.close()
     server_socket.close()
+
+
+def response_ok():
+    message = '{0} {1}'.format(HTML_PROTOCOL, RESPONSE_CODE[200])
+    return message.encode('utf8')
+
+
+def response_error():
+    message = '{0} {1}'.format(HTML_PROTOCOL, RESPONSE_CODE[500])
+    return message.encode('utf8')
+
 
 if __name__ == '__main__':
     server()
