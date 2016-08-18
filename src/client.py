@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import socket
 from sys import argv
 
-PORT = 5046
+PORT = 5047
 
 
 def client(message):
