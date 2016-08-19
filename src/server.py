@@ -6,10 +6,6 @@ from client import PORT
 from message import Request, Response
 
 HTML_PROTOCOL = 'HTTP/1.1'
-RESPONSE_CODE = {
-    200: '200 OK',
-    500: '500 Internal Server Error'
-}
 CRLF = '\r\n'
 
 
