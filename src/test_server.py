@@ -23,6 +23,7 @@ def bad_protocol():
 def bad_host():
     return 'GET /path/to/index.html HTTP/1\r\nAccept-Language: en-us\r\n'
 
+
 # TEST_CONDITIONS = ['string',  
 #     '1', 
 #     '1234567', 
@@ -78,3 +79,25 @@ def test_parse_request_bad_host(bad_host):
     from server import parse_request
     with pytest.raises(ValueError):
         parse_request(bad_host)
+
+
+def test_resolve_uri_file_found_txt():
+    from server import resolve_uri
+    assert resolve_uri('text/sample.txt') == ('txt', 'This is a very simple text file.\nJust to show that we can serve it up.\nIt is three lines long.')
+
+
+def test_resolve_uri_file_not_found():
+    from server import resolve_uri
+    with pytest.raises(IOError):
+        resolve_uri('not/found.txr')
+
+
+def test_resolve_uri_dir_found():
+    from server import resolve_uri
+    assert resolve_uri('images/') == ('text', ['JPEG_example.jpg', 'sample_1.png', 'Sample_Scene_Balls.jpg'])
+
+
+def test_resolve_uri_dir_not_found():
+    from server import resolve_uri
+    with pytest.raises(IOError):
+        resolve_uri('not/found/')

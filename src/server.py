@@ -4,9 +4,12 @@ from __future__ import unicode_literals
 import socket
 from client import PORT
 from message import Request, Response
+import os
 
 HTML_PROTOCOL = 'HTTP/1.1'
 CRLF = '\r\n'
+
+ROOT = '../webroot'
 
 
 def server():
@@ -69,6 +72,27 @@ def parse_request(client_request):
         return http_request.uri
     else:
         raise ValueError("Please make a valid request")
+
+
+def resolve_uri(uri):
+
+    relative_uri = os.path.join(ROOT, uri.lstrip('/'))
+
+    if os.path.isdir(relative_uri):
+        try:
+            dir_list = os.listdir(relative_uri)
+            response = ('text', dir_list)
+        except OSError:
+            raise OSError("directroy not found")
+    else:
+        try:
+            with open(relative_uri, 'r') as target_file:
+                content = target_file.read()
+        except IOError:
+            raise IOError("file not found")
+        file_type = relative_uri.split('.')[-1]
+        response = (file_type, content)
+    return response
 
 if __name__ == '__main__':
     server()
