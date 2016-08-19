@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 import socket
 from client import PORT
+from message import Request, Response
 
 HTML_PROTOCOL = 'HTTP/1.1'
 RESPONSE_CODE = {
@@ -35,36 +36,43 @@ def server():
             recv_message += part
             if len(part) < buffer_length:
                 message_complete = True
-        print(recv_message)
-        conn.sendall(response_ok())
+
+        try:
+            parse_request(recv_message.decode('utf-8'))
+        except TypeError as msg:
+            reply = response_error(405, str(msg))
+        except ValueError as msg:
+            reply = response_error(400, str(msg))
+        else:
+            reply = response_ok()
+
+        conn.sendall(reply)
         conn.close()
     server_socket.close()
 
 
 def response_ok():
-    message = '{0} {1}{2}'.format(HTML_PROTOCOL, RESPONSE_CODE[200], CRLF + CRLF)
-    return message.encode('utf8')
+    """Return a http response ok message."""
+    my_message = Response(200, 'You did it correctly! YOU ROCK!')
+    return my_message.send_response()
 
 
 def response_error(code, phrase):
-    message = '{0} {1}{2}'.format(HTML_PROTOCOL, RESPONSE_CODE[500], CRLF)
-    return message.encode('utf8')
+    """Return an response error by passing in valid error code."""
+    my_message = Response(code, phrase)
+    return my_message.send_response()
 
 
-def parse_request(request):
-    request_as_string = request.encode('utf8')
-    head = request_as_string.split(CRLF + CRLF)[0]
-    head_as_list = head.split(CRLF)
-    first_line = head_as_list[0].split(" ")
+def parse_request(client_request):
+    """Parse info from a request.  Raise Errors is bad request."""
+    http_request = Request(client_request)
 
-    request_type = first_line[0]
-    request_uri = first_line[1]
-    request_protocol = first_line[2]
-
-    if (request_type == 'GET') and (request_protocol == 'HTTP/1.1') and (head_as_list[1][:4] == 'Host'):
-        return request_uri
+    if http_request.http_method != 'GET':
+        raise TypeError("This server only accomodates get requests.")
+    if http_request.correct_get_request():
+        return http_request.uri
     else:
-        raise ValueError("Please make a request with response type GET protocol HTTP/1.1 and Host on line 2")
+        raise ValueError("Please make a valid request")
 
 if __name__ == '__main__':
     server()

@@ -1,4 +1,6 @@
 # _*_ coding: utf-8 _*_
+from __future__ import unicode_literals
+
 import pytest
 
 
@@ -8,8 +10,18 @@ def good_request():
 
 
 @pytest.fixture
-def bad_request():
-    return 'POST /path/to/index.html HTTP/1\r\nNotHost: www.mysite1.com:80\r\n'
+def post_request():
+    return 'POST /path/to/index.html HTTP/1.1\r\nHost: www.mysite1.com:80\r\n'
+
+
+@pytest.fixture
+def bad_protocol():
+    return 'GET /path/to/index.html HTTP/1\r\nHost: www.mysite1.com:80\r\n'
+
+
+@pytest.fixture
+def bad_host():
+    return 'GET /path/to/index.html HTTP/1\r\nAccept-Language: en-us\r\n'
 
 # TEST_CONDITIONS = ['string',  
 #     '1', 
@@ -50,7 +62,19 @@ def test_parse_request_good(good_request):
     assert parse_request(good_request) == '/path/to/index.html'
 
 
-def test_parse_request_bad(bad_request):
+def test_parse_request_post(post_request):
+    from server import parse_request
+    with pytest.raises(TypeError):
+        parse_request(post_request)
+
+
+def test_parse_bad_protocol(bad_protocol):
     from server import parse_request
     with pytest.raises(ValueError):
-        parse_request(bad_request)
+        parse_request(bad_protocol)
+
+
+def test_parse_request_bad_host(bad_host):
+    from server import parse_request
+    with pytest.raises(ValueError):
+        parse_request(bad_host)
