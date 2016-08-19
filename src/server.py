@@ -42,14 +42,29 @@ def server():
 
 
 def response_ok():
-    message = '{0} {1}{2}'.format(HTML_PROTOCOL, RESPONSE_CODE[200], CRLF)
+    message = '{0} {1}{2}'.format(HTML_PROTOCOL, RESPONSE_CODE[200], CRLF + CRLF)
     return message.encode('utf8')
 
 
-def response_error():
+def response_error(code, phrase):
     message = '{0} {1}{2}'.format(HTML_PROTOCOL, RESPONSE_CODE[500], CRLF)
     return message.encode('utf8')
 
+
+def parse_request(request):
+    request_as_string = request.encode('utf8')
+    head = request_as_string.split(CRLF + CRLF)[0]
+    head_as_list = head.split(CRLF)
+    first_line = head_as_list[0].split(" ")
+
+    request_type = first_line[0]
+    request_uri = first_line[1]
+    request_protocol = first_line[2]
+
+    if (request_type == 'GET') and (request_protocol == 'HTTP/1.1') and (head_as_list[1][:4] == 'Host'):
+        return request_uri
+    else:
+        raise ValueError("Please make a request with response type GET protocol HTTP/1.1 and Host on line 2")
 
 if __name__ == '__main__':
     server()
