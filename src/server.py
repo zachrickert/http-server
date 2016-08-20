@@ -9,6 +9,7 @@ import os
 HTML_PROTOCOL = 'HTTP/1.1'
 CRLF = '\r\n'
 
+# PWD = os.dir_name(__file__)
 ROOT = '../webroot'
 
 
@@ -37,22 +38,23 @@ def server():
                 message_complete = True
 
         try:
-            parse_request(recv_message.decode('utf-8'))
+            client_uri = parse_request(recv_message.decode('utf-8'))
         except TypeError as msg:
             reply = response_error(405, str(msg))
         except ValueError as msg:
             reply = response_error(400, str(msg))
         else:
-            reply = response_ok()
-
+            resolved = resolve_uri(client_uri)
+            reply = response_ok(resolved)
         conn.sendall(reply)
+
         conn.close()
     server_socket.close()
 
 
-def response_ok():
+def response_ok(body):
     """Return a http response ok message."""
-    my_message = Response(200, 'You did it correctly! YOU ROCK!')
+    my_message = Response(200, body)
     return my_message.send_response()
 
 
@@ -65,19 +67,20 @@ def response_error(code, phrase):
 def parse_request(client_request):
     """Parse info from a request.  Raise Errors is bad request."""
     http_request = Request(client_request)
-
+    # print(http_request.protocol, http_request.http_method, http_request.headers)
     if http_request.http_method != 'GET':
         raise TypeError("This server only accomodates get requests.")
-    if http_request.correct_get_request():
-        return http_request.uri
+    elif http_request.protocol != 'HTTP/1.1':
+        raise ValueError("Incorrect Protocol")
+    elif not http_request.has_host:
+        raise ValueError("No Host found.")
     else:
-        raise ValueError("Please make a valid request")
+        return http_request.uri
 
 
 def resolve_uri(uri):
-
+    # from pdb import set_trace; set_trace()
     relative_uri = os.path.join(ROOT, uri.lstrip('/'))
-
     if os.path.isdir(relative_uri):
         try:
             dir_list = os.listdir(relative_uri)
@@ -89,7 +92,9 @@ def resolve_uri(uri):
             with open(relative_uri, 'r') as target_file:
                 content = target_file.read()
         except IOError:
-            raise IOError("file not found")
+            response = response_error(404, 'file not found')
+            return response
+
         file_type = relative_uri.split('.')[-1]
         response = (file_type, content)
     return response
