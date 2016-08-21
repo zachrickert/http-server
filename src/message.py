@@ -36,14 +36,17 @@ class Response(object):
             CRLF + CRLF)
         message = message.encode('utf-8')
         try:
-            message = message + self.body[1]
+            message += self.body[1]
         except TypeError:
-            html_list = '<html>'
-            for item in self.body[1]:
-                html_list += '<li>{0}'.format(item)
-            message += html_list.encode('utf-8')
+            if self.code == 200:
+                html_list = '<html>'
+                for item in self.body[1]:
+                    html_list += '<li>{0}'.format(item)
+                message += html_list.encode('utf-8')
+            else:
+                message += self.body.encode('utf-8')
 
-
+        print(message)
         return message
 
 
