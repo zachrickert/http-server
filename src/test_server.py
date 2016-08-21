@@ -83,7 +83,7 @@ def test_parse_request_bad_host(bad_host):
 
 def test_resolve_uri_file_found_txt():
     from server import resolve_uri
-    assert resolve_uri('text/sample.txt') == ('txt', 'This is a very simple text file.\nJust to show that we can serve it up.\nIt is three lines long.')
+    assert resolve_uri('text/sample.txt') == ('txt', b'This is a very simple text file.\nJust to show that we can serve it up.\nIt is three lines long.')
 
 
 def test_resolve_uri_file_not_found():
