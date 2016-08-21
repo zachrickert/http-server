@@ -9,7 +9,7 @@ import os
 HTML_PROTOCOL = 'HTTP/1.1'
 CRLF = '\r\n'
 
-# PWD = os.dir_name(__file__)
+PWD = os.path.dirname(__file__)
 ROOT = '../webroot'
 
 
@@ -45,7 +45,9 @@ def server():
             reply = response_error(400, str(msg))
         else:
             resolved = resolve_uri(client_uri)
+            root_dir = os.path.join(PWD, ROOT)
             reply = response_ok(resolved)
+            
         conn.sendall(reply)
 
         conn.close()
@@ -81,6 +83,9 @@ def parse_request(client_request):
 def resolve_uri(uri):
     # from pdb import set_trace; set_trace()
     relative_uri = os.path.join(ROOT, uri.lstrip('/'))
+    ex1 = 'images/JPEG_example.jpg'
+    ex2 = 'text/sample.txt'
+    relative_uri = os.path.join(relative_uri, ex1)
     if os.path.isdir(relative_uri):
         try:
             dir_list = os.listdir(relative_uri)
@@ -89,11 +94,11 @@ def resolve_uri(uri):
             raise OSError("directroy not found")
     else:
         try:
-            with open(relative_uri, 'r') as target_file:
+            with open(relative_uri, 'rb') as target_file:
                 content = target_file.read()
         except IOError:
-            response = response_error(404, 'file not found')
-            return response
+            #response = response_error(404, 'file not found')
+            return 
 
         file_type = relative_uri.split('.')[-1]
         response = (file_type, content)

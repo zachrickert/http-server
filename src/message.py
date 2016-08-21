@@ -12,8 +12,8 @@ RESPONSE_CODE = {
     500: '500 Internal Server Error'
 }
 
-# CRLF = '\r\n'
-CRLF = '\\r\\n'
+CRLF = '\r\n'
+# CRLF = '\\r\\n'
 
 class Response(object):
     """Form a correct http response."""
@@ -25,12 +25,26 @@ class Response(object):
 
     def send_response(self):
         """Format reponse for in http protocol."""
-        message = '{0} {1}{2}{3}'.format(
+        # message = '{0} {1}{2}{3}'.format(
+        #     HTML_PROTOCOL,
+        #     RESPONSE_CODE[self.code],
+        #     CRLF + CRLF,
+        #     self.body)
+        message = '{0} {1}{2}'.format(
             HTML_PROTOCOL,
             RESPONSE_CODE[self.code],
-            CRLF + CRLF,
-            self.body)
-        return message.encode('utf8')
+            CRLF + CRLF)
+        message = message.encode('utf-8')
+        try:
+            message = message + self.body[1]
+        except TypeError:
+            html_list = '<html>'
+            for item in self.body[1]:
+                html_list += '<li>{0}'.format(item)
+            message += html_list.encode('utf-8')
+
+
+        return message
 
 
 class Request(object):
@@ -47,15 +61,14 @@ class Request(object):
         self.headers = {}
         for header in head:
             try:
-                key, value = (header.split(':')[0],
-                              header.split(':')[1].lstrip())
+                key, value = header.split(':')[0], header.split(':')[1].lstrip()
                 self.headers[key] = value
             except IndexError:
                 pass
 
         self.has_host = 'Host' in self.headers
-        print('Method: ' + self.http_method)
-        print('Uri: ' + self.uri)
-        print('Protocol: ' + self.protocol)
-        print('Host: ' + self.headers['Host'])
+        # print('Method: ' + self.http_method)
+        # print('Uri: ' + self.uri)
+        # print('Protocol: ' + self.protocol)
+        # print('Host: ' + self.headers['Host'])
         
